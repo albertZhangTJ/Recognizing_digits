@@ -106,8 +106,39 @@ void network::train(idx3 images, idx1 labels){
     }
     for (int i=0; i<images.images.size(); i++){
         this->back_propagate(forward_propagate(images.images[i]), labels.labels[i]);
-        if ((i+1)%(images.size/1000)==0){
-            cout<<"Training, "<<i<<" images used"<<endl;
+        if ((i+1)%(images.size/100)==0){
+            cout<<"Training, "<<i+1<<" images used"<<endl;
+        }
+    }
+}
+
+int network::recognize(std::vector<char> image){
+    vector<double> outputs=this->forward_propagate(image);
+    double max=-1;
+    int max_ind=0;
+    for (int i=0; i<10; i++){
+        if (outputs[i]>max){
+            max_ind=i;
+        }
+    }
+    return max_ind;
+}
+
+void network::test(idx3 images, idx1 labels){
+    if (images.size!=labels.size){
+        cout<<"\033[1;31mERROR: images set and labels set does not match"<<"\033[0m"<<endl;
+        throw new exception;
+    }
+    int total=0;
+    int err=0;
+    for (int i=0; i<images.images.size(); i++){
+        if (this->recognize(images.images[i])!=labels.labels[i]){
+            err++;
+        }
+        total++;
+        if ((i+1)%(images.size/100)==0){
+            cout<<"Testing, "<<i+1<<" images used"<<endl;
+            cout<<"Current accuracy: "<<100-err*100/total<<"%"<<endl<<endl;
         }
     }
 }

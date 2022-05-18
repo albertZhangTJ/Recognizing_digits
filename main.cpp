@@ -14,8 +14,11 @@ int main(){
     try {
         idx3 train_images=parse_idx3(read_file("train-images.idx3-ubyte"));
         idx1 train_labels=parse_idx1(read_file("train-labels.idx1-ubyte"));
+        idx3 test_images=parse_idx3(read_file("t10k-images.idx3-ubyte"));
+        idx1 test_labels=parse_idx1(read_file("t10k-labels.idx1-ubyte"));
         network net(train_images.rows*train_images.cols, 10);
         net.train(train_images, train_labels);
+        net.test(test_images, test_labels);
     }
     catch (exception e){
         cout<<"Program terminated"<<endl;
