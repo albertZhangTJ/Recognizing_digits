@@ -10,7 +10,8 @@
 struct idx3{
     int rows,cols;
     int size; //number of images
-    std::vector<std::vector<char>> images; //each image is represented as a single vector
+    //each image is represented as a single vector of chars (or so to say, bytes)
+    std::vector<std::vector<char>> images; 
 };
 
 struct idx1{

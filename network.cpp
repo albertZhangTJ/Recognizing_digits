@@ -7,6 +7,16 @@
 
 using namespace std;
 
+
+//打印一个vector，调试用
+void print(vector<double>& v){
+    for (double d: v){
+        cout<<d<<" ";
+    }
+    cout<<endl;
+}
+
+//损失函数（不过没用到）
 double loss(vector<double> outputs, int label){
     double ans=0;
     for (int i=0; i<outputs.size(); i++){
@@ -20,6 +30,9 @@ double loss(vector<double> outputs, int label){
     return ans;
 }
 
+
+//构造函数
+//从输入层开始，每一层的neuron数量是上一层的一半
 network::network(int inp_size, int oup_size){
     int num=inp_size;
     int last_layer=1;
@@ -34,7 +47,7 @@ network::network(int inp_size, int oup_size){
         num/=2;
     }
     vector<neuron> oup_layer;
-    for (int i=0; i<num; i++){
+    for (int i=0; i<oup_size; i++){
         neuron to_add(last_layer);
         oup_layer.push_back(to_add);
     }
@@ -64,13 +77,20 @@ vector<double> network::forward_propagate(vector<char> images){
         last_layer_output=cur_layer_output;
         cur_layer_output.clear();
     }
+    //print(last_layer_output);
     return last_layer_output;
 }
 
 
 void network::back_propagate(vector<double> outputs, int label){
+    //cout<<label<<endl;
+    //右边一层生成的的error
     vector<vector<double>> last_err;
+    //本层生成的来自左边一层输入的error
     vector<vector<double>> cur_err;
+
+    //从最右边开始
+    //每个输出层neuron的error
     for (int i=0; i<outputs.size(); i++){
         if (i==label){
             last_err.push_back({1-outputs[i]});
@@ -79,16 +99,23 @@ void network::back_propagate(vector<double> outputs, int label){
             last_err.push_back({0-outputs[i]});
         }
     }
+
+    //反向传播
     for (int i=this->neurons.size()-1; i>0; i--){
         cur_err.clear();
         for (int j=0; j<neurons[i].size(); j++){
             //cout<<this->inputs.size()<<" "<<i<<" "<<this->inputs[i].size()<<endl;
+
+            //让一个neuron调整自己的weights和bias
+            //同时生成这个neuron认为的上一层activation应该怎么变化
             vector<double> gen=neurons[i][j].update(this->inputs[i-1],last_err[j]);
+            //本层第一个neuron的时候需要生成上一层每一个neuron对应的vector
             if (cur_err.empty()){
                 for (double err: gen){
                     cur_err.push_back({err});
                 }
             }
+            //否则只需要把生成的error放到对应的vector里
             else {
                 for (int k=0; k<gen.size(); k++){
                     cur_err[k].push_back(gen[k]);
@@ -112,15 +139,20 @@ void network::train(idx3 images, idx1 labels){
     }
 }
 
+//根据forward_propagation的输出，选出最接近1的那个
+//返回index
 int network::recognize(std::vector<char> image){
     vector<double> outputs=this->forward_propagate(image);
     double max=-1;
     int max_ind=0;
     for (int i=0; i<10; i++){
+        //cout<<outputs[i]<<" ";
         if (outputs[i]>max){
+            max=outputs[i];
             max_ind=i;
         }
     }
+    //cout<<endl;
     return max_ind;
 }
 

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+//reading a binary file
 std::vector<char> read_file(std::string file_name){
     std::cout<<"Reading binary file: "<<file_name<<" ..."<<std::flush;
     std::ifstream input(file_name, std::ios::binary );
